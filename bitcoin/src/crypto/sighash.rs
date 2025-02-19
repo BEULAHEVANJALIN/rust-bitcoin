@@ -94,8 +94,8 @@ hashes::impl_serde_for_newtype!(TapSighash);
 impl_message_from_hash!(TapSighash);
 
 /// Efficiently calculates signature hash message for legacy, SegWit and Taproot inputs.
-#[derive(Debug)]
-pub struct SighashCache<T: Borrow<Transaction>> {
+#[derive(Debug, Clone)]
+pub struct SighashCache<T: Borrow<Transaction> + Clone> {
     /// Access to transaction required for transaction introspection. Moreover, type
     /// `T: Borrow<Transaction>` allows us to use borrowed and mutable borrowed types,
     /// the latter in particular is necessary for [`SighashCache::witness_mut`].
@@ -112,7 +112,7 @@ pub struct SighashCache<T: Borrow<Transaction>> {
 }
 
 /// Common values cached between SegWit and Taproot inputs.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct CommonCache {
     prevouts: sha256::Hash,
     sequences: sha256::Hash,
@@ -123,7 +123,7 @@ struct CommonCache {
 }
 
 /// Values cached for SegWit inputs, equivalent to [`CommonCache`] plus another round of `sha256`.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct SegwitCache {
     prevouts: sha256d::Hash,
     sequences: sha256d::Hash,
@@ -131,7 +131,7 @@ struct SegwitCache {
 }
 
 /// Values cached for Taproot inputs.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct TaprootCache {
     amounts: sha256::Hash,
     script_pubkeys: sha256::Hash,
@@ -586,7 +586,7 @@ impl std::error::Error for SighashTypeParseError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> { None }
 }
 
-impl<R: Borrow<Transaction>> SighashCache<R> {
+impl<R: Borrow<Transaction> + Clone> SighashCache<R> {
     /// Constructs a new `SighashCache` from an unsigned transaction.
     ///
     /// The sighash components are computed in a lazy manner when required. For the generated
@@ -1124,7 +1124,7 @@ impl<R: Borrow<Transaction>> SighashCache<R> {
     }
 }
 
-impl<R: BorrowMut<Transaction>> SighashCache<R> {
+impl<R: BorrowMut<Transaction> + Clone> SighashCache<R> {
     /// Allows modification of witnesses.
     ///
     /// As a lint against accidental changes to the transaction that would invalidate the cache and

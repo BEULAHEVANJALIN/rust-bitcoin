@@ -356,7 +356,7 @@ impl Psbt {
     ) -> Result<Vec<PublicKey>, SignError>
     where
         C: Signing,
-        T: Borrow<Transaction>,
+        T: Borrow<Transaction> + Clone,
         K: GetKey,
     {
         let msg_sighash_ty_res = self.sighash_ecdsa(input_index, cache);
@@ -411,7 +411,7 @@ impl Psbt {
     ) -> Result<Vec<XOnlyPublicKey>, SignError>
     where
         C: Signing + Verification,
-        T: Borrow<Transaction>,
+        T: Borrow<Transaction> + Clone,
         K: GetKey,
     {
         let mut input = self.checked_input(input_index)?.clone();
@@ -495,7 +495,7 @@ impl Psbt {
     /// Uses the [`EcdsaSighashType`] from this input if one is specified. If no sighash type is
     /// specified uses [`EcdsaSighashType::All`]. This function does not support scripts that
     /// contain `OP_CODESEPARATOR`.
-    pub fn sighash_ecdsa<T: Borrow<Transaction>>(
+    pub fn sighash_ecdsa<T: Borrow<Transaction> + Clone>(
         &self,
         input_index: usize,
         cache: &mut SighashCache<T>,
@@ -556,7 +556,7 @@ impl Psbt {
     ///
     /// Uses the [`TapSighashType`] from this input if one is specified. If no sighash type is
     /// specified uses [`TapSighashType::Default`].
-    fn sighash_taproot<T: Borrow<Transaction>>(
+    fn sighash_taproot<T: Borrow<Transaction> + Clone>(
         &self,
         input_index: usize,
         cache: &mut SighashCache<T>,
